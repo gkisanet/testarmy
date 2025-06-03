@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#3d07cd" />
+    <meta name="description" content="국방가족 모바일증명 앱" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="내정보" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>나의정보</title>
+
+    <style>
+      /* 전체 기본 스타일 */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        line-height: 1.5;
+        /* 전체 화면에 딱 맞게 */
+        padding: 0;
+        margin: 0;
+        background-color: white;
+        width: 100%;
+      }
+
+      /* 헤더 */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background-color: white;
+        border-bottom: 1px solid #e0e0e0;
+        width: 100%;
+      }
+      .header h1 {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      /* 네비게이션 버튼 */
+      .nav-buttons {
+        display: flex;
+        background-color: #eeeeee;
+        padding: 15px 0;
+        border-bottom: 1px solid #e0e0e0;
+        width: 100%;
+      }
+      .nav-item {
+        flex: 1;
+        text-align: center;
+        padding: 5px 0;
+      }
+      .nav-item.active {
+        font-weight: bold;
+        color: #3d07cd;
+      }
+
+      /* 확인 박스 */
+      .confirmation-box {
+        border: 1px dashed #aaa;
+        padding: 20px;
+        text-align: center;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        line-height: 0.9;
+        width: 90%;
+        margin: 13px auto;
+      }
+      .reload-button {
+        width: 40px;
+        height: 40px;
+        background-color: #f0f0f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* 오른쪽에 고정: 부모가 블록 요소이면 margin-left:auto 충분 */
+        margin: 0 15px 0 auto;
+      }
+      .confirmation-time {
+        color: red;
+      }
+
+      /* 정보 섹션 */
+      .info-section {
+        background-color: white;
+        width: 95%;
+        margin: 5px auto;
+      }
+      .info-header {
+        margin-bottom: 15px;
+        font-size: 16px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #cecece;
+        white-space: nowrap;
+        font-size: 14px;
+        border-left: solid 1px transparent;
+        border-right: solid 1px transparent;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      td {
+        padding: 15px 10px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .label-cell {
+        width: 30%;
+        background-color: #f9f9f9;
+        font-weight: bold;
+        text-align: center;
+      }
+      .value-cell {
+        width: 40%;
+      }
+      .action-cell {
+        width: 30%;
+        text-align: center;
+      }
+      .button {
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 5px 15px;
+        border-radius: 5px;
+      }
+      .blue-button {
+        border: 1px solid #3d07cd;
+        color: #3d07cd;
+      }
+      .section-title {
+        padding: 15px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .family-table {
+        width: 95%;
+        margin: 10px auto;
+        background-color: white;
+      }
+      .family-table th {
+        padding: 10px;
+        background-color: #f0f0f0;
+        text-align: center;
+      }
+      .family-table td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .profile-icon {
+        background-color: #3b8aff;
+        color: white;
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        margin-right: 3px;
+      }
+
+      /* 고정 하단 네비게이션 및 바: 항상 전체 화면 폭에 맞게 */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        display: flex;
+        background-color: white;
+        border-top: 1px solid #e0e0e0;
+      }
+      .bottom-nav-item {
+        flex: 1;
+        text-align: center;
+        padding: 10px 0;
+        font-size: 12px;
+      }
+      .bottom-bar {
+        background-color: black;
+        display: flex;
+        justify-content: space-around;
+        padding: 15px 0;
+        width: 100%;
+      }
+      .bottom-bar-button {
+        width: 30px;
+        height: 30px;
+        background-color: transparent;
+        border: none;
+        color: white;
+      }
+      #fullscreen-btn {
+        background-color: #3d07cd;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <script>
+    // 버튼 클릭 시 전체화면 요청
+    document
+      .getElementById('fullscreen-btn')
+      .addEventListener('click', function () {
+        // 현재 문서 요소(예: document.documentElement)를 전체화면으로 전환
+        var elem = document.documentElement;
+
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          // Firefox 지원
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+          // Chrome, Safari 및 Opera 지원
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          // IE/Edge 지원
+          elem.msRequestFullscreen();
+        }
+      });
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker
+          .register('./sw.js')
+          .then(function (registration) {
+            console.log('ServiceWorker 등록 성공, scope:', registration.scope);
+          })
+          .catch(function (err) {
+            console.log('ServiceWorker 등록 실패:', err);
+          });
+      });
+    }
+  </script>
+  <body>
+    <!-- 헤더 -->
+    <div class="header">
+      <button style="background: none; border: none">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <h1>나의정보</h1>
+      <button style="background: none; border: none">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- 네비게이션 버튼 -->
+    <div class="nav-buttons">
+      <div style="width: 10%; text-align: center">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"
+            fill="#aaa"
+          />
+        </svg>
+      </div>
+      <div class="nav-item active">국방가족 모바일증명</div>
+      <div class="nav-item">마트 이용 예약 신청/확</div>
+      <div style="width: 10%; text-align: center">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+            fill="#aaa"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- 확인 박스 -->
+    <div class="confirmation-box">
+      <p style="font-size: 20px">국방복지 회원임을 증명합니다.</p>
+      <p style="margin-top: 10px; font-size: 20px">
+        <span style="font-weight: bold">
+          <script>
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = ('0' + (today.getMonth() + 1)).slice(-2);
+            var day = ('0' + today.getDate()).slice(-2);
+            document.write(year + '년 ' + month + '월 ' + day + '일');
+          </script>
+        </span>
+        <span id="confirmation-time" class="confirmation-time">10:30:35</span>
+        <script>
+          (function () {
+            let elem = document.getElementById('confirmation-time');
+            let timeParts = elem.textContent.split(':');
+            let totalSeconds =
+              +timeParts[0] * 3600 + +timeParts[1] * 60 + +timeParts[2];
+            function updateCountdown() {
+              let hrs = Math.floor(totalSeconds / 3600);
+              let mins = Math.floor((totalSeconds % 3600) / 60);
+              let secs = totalSeconds % 60;
+              elem.textContent =
+                String(hrs).padStart(2, '0') +
+                ':' +
+                String(mins).padStart(2, '0') +
+                ':' +
+                String(secs).padStart(2, '0');
+              if (totalSeconds > 0) totalSeconds--;
+            }
+            setInterval(updateCountdown, 1000);
+          })();
+        </script>
+      </p>
+    </div>
+
+    <!-- 리로드 버튼 (오른쪽 정렬) -->
+    <div class="reload-button">
+      <i class="fa-solid fa-rotate-left fa-lg"></i>
+    </div>
+
+    <!-- 정보 섹션 -->
+    <div class="info-section">
+      <div class="info-header">정회원 (가입일자: 2022.06.12)</div>
+      <table>
+        <tr>
+          <td class="label-cell">성명</td>
+          <td class="value-cell">
+            권윤상
+            <span class="profile-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path
+                  d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                  fill="white"
+                />
+              </svg>
+            </span>
+          </td>
+          <td class="label-cell">생년월일</td>
+          <td class="value-cell">1949.03.05</td>
+          <td class="action-cell">사진</td>
+        </tr>
+        <tr>
+          <td class="label-cell">군별</td>
+          <td class="value-cell">육군</td>
+          <td class="label-cell">신분</td>
+          <td class="value-cell">보훈대상자/<br />국가유공자</td>
+          <td class="action-cell">
+            <button class="button">갱신</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 가족 정보 섹션 -->
+    <div class="section-title">
+      <span>정회원대우(가족)</span>
+      <button class="button blue-button">가족 추가/수정</button>
+    </div>
+    <table class="family-table">
+      <thead>
+        <tr>
+          <th>관계</th>
+          <th>성명</th>
+          <th>생년월일</th>
+          <th>사진</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>배우자</td>
+          <td>
+            김홍선
+            <span class="profile-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path
+                  d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                  fill="white"
+                />
+              </svg>
+            </span>
+          </td>
+          <td>1956.10.09</td>
+          <td>
+            <button class="button">등록</button>
+          </td>
+        </tr>
+        <tr>
+          <td>녀</td>
+          <td>
+            <a href="claude2.html">권성혜</a>
+            <span class="profile-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path
+                  d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                  fill="white"
+                />
+              </svg>
+            </span>
+          </td>
+          <td>1980.06.07</td>
+          <td>
+            <button class="button">갱신</button>
+          </td>
+        </tr>
+        <tr>
+          <td>자</td>
+          <td>
+            권영부
+            <span class="profile-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path
+                  d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                  fill="white"
+                />
+              </svg>
+            </span>
+          </td>
+          <td>1986.08.27</td>
+          <td>
+            <button class="button">갱신</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 하단 추가 정보 -->
+    <div style="padding: 15px; width: 100%">
+      <button
+        class="button"
+        style="
+          display: flex;
+          align-items: center;
+          margin-bottom: 20px;
+          border: none;
+        "
+      >
+        <span class="profile-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24">
+            <path
+              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+              fill="white"
+            />
+          </svg>
+        </span>
+        : 사진보기
+      </button>
+      <div
+        style="
+          margin-top: 20px;
+          font-weight: bold;
+          font-size: 16px;
+          width: 100%;
+        "
+      >
+        ID/카프
+      </div>
+    </div>
+
+    <!-- 고정 하단 네비게이션 -->
+    <div class="bottom-nav">
+      <div class="bottom-nav-item">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          style="margin-bottom: 5px"
+        >
+          <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" fill="#555" />
+        </svg>
+        <div>홈</div>
+      </div>
+      <div class="bottom-nav-item">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          style="margin-bottom: 5px"
+        >
+          <path
+            d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1"
+            fill="#555"
+          />
+        </svg>
+        <div>호텔/골프</div>
+      </div>
+      <div class="bottom-nav-item">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          style="margin-bottom: 5px"
+        >
+          <path
+            d="M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22A10,10 0 0,0 22,12C22,6.47 17.53,2 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41"
+            fill="#555"
+          />
+        </svg>
+        <div>체역단명칭</div>
+      </div>
+      <div class="bottom-nav-item">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          style="margin-bottom: 5px"
+        >
+          <path
+            d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"
+            fill="#555"
+          />
+        </svg>
+        <div>복지시설</div>
+      </div>
+      <div class="bottom-nav-item">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          style="margin-bottom: 5px"
+        >
+          <path
+            d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+            fill="#555"
+          />
+        </svg>
+        <div>내 정보</div>
+      </div>
+    </div>
+
+    <!-- 고정 하단 바 -->
+    <div class="bottom-bar">
+      <button class="bottom-bar-button">|||</button>
+      <button class="bottom-bar-button">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="white"
+            fill="transparent"
+            stroke-width="2"
+          />
+        </svg>
+      </button>
+      <button class="bottom-bar-button">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
+            fill="white"
+          />
+        </svg>
+      </button>
+    </div>
+  </body>
+</html>
